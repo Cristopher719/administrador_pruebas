@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Dashboard Docente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+        body{background:#f0f2f5;}
+        .stat-card{border:none;border-radius:12px;transition:transform .2s;}
+        .stat-card:hover{transform:translateY(-4px);}
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar('DOCENTE')}"></div>
+<div class="container-fluid py-4 px-4">
+
+    <div class="mb-4">
+        <h2 class="fw-bold mb-0">Dashboard Docente</h2>
+        <p class="text-muted mb-0">Consulta de resultados Saber Pro y Saber T&amp;T — UTS 2026</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-people-fill" style="font-size:2rem"></i>
+                    <h3 class="fw-bold mt-1 mb-0" th:text="${totalEstudiantes}">0</h3>
+                    <small>Total Estudiantes</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#0f3460,#1a1a2e)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-mortarboard-fill" style="font-size:2rem"></i>
+                    <h3 class="fw-bold mt-1 mb-0" th:text="${totalSaberPro}">0</h3>
+                    <small>Saber Pro</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#1abc9c,#16a085)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-calculator-fill" style="font-size:2rem"></i>
+                    <h3 class="fw-bold mt-1 mb-0" th:text="${promedioSaberPro != null ? #numbers.formatDecimal(promedioSaberPro,1,1) : 'N/A'}">0</h3>
+                    <small>Promedio Saber Pro</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-exclamation-circle-fill" style="font-size:2rem"></i>
+                    <h3 class="fw-bold mt-1 mb-0" th:text="${proNoApto}">0</h3>
+                    <small>No Aptos Graduación</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Beneficios resumen -->
+    <div class="row g-3 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h6 class="fw-bold mb-0"><i class="bi bi-award me-2 text-warning"></i>Resumen Beneficios Saber Pro — Acuerdo 01-009 UTS</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3 text-center">
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-3 bg-success bg-opacity-10 border border-success">
+                                <h4 class="fw-bold text-success" th:text="${proBeca100}">0</h4>
+                                <small class="text-success fw-semibold">≥ 241 pts</small>
+                                <p class="mb-0 small text-muted">Beca 100% + Exime informe</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-3 bg-primary bg-opacity-10 border border-primary">
+                                <h4 class="fw-bold text-primary" th:text="${proBeca50}">0</h4>
+                                <small class="text-primary fw-semibold">211 – 240 pts</small>
+                                <p class="mb-0 small text-muted">Beca 50% + Exime informe</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-3 bg-warning bg-opacity-10 border border-warning">
+                                <h4 class="fw-bold text-warning" th:text="${proExime}">0</h4>
+                                <small class="text-warning fw-semibold">180 – 210 pts</small>
+                                <p class="mb-0 small text-muted">Exime informe / Seminario 4.5</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="p-3 rounded-3 bg-danger bg-opacity-10 border border-danger">
+                                <h4 class="fw-bold text-danger" th:text="${proNoApto}">0</h4>
+                                <small class="text-danger fw-semibold">&lt; 120 pts</small>
+                                <p class="mb-0 small text-muted">No apto para graduación</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones rápidas -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-0 pt-3"><h6 class="fw-bold">Acciones Rápidas</h6></div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/docente/por-facultad}" class="btn btn-outline-primary text-start py-2">
+                            <i class="bi bi-building me-2"></i>Consultar por Facultad
+                        </a>
+                        <a th:href="@{/docente/por-cedula}" class="btn btn-outline-info text-start py-2">
+                            <i class="bi bi-person-badge me-2"></i>Consultar por Cédula / Registro
+                        </a>
+                        <a th:href="@{/docente/informe-alumnos}" class="btn btn-outline-success text-start py-2">
+                            <i class="bi bi-file-earmark-text me-2"></i>Informe de Alumnos Total y Único
+                        </a>
+                        <a th:href="@{/docente/informe-beneficios}" class="btn btn-outline-warning text-start py-2">
+                            <i class="bi bi-award me-2"></i>Informe de Beneficios
+                        </a>
+                        <a th:href="@{/docente/resolucion-beneficios}" class="btn btn-outline-secondary text-start py-2">
+                            <i class="bi bi-file-earmark-ruled me-2"></i>Resolución Beneficios Tecnología e Ingeniería
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-0 pt-3"><h6 class="fw-bold">Facultades Registradas</h6></div>
+                <div class="card-body">
+                    <div th:if="${#lists.isEmpty(facultades)}" class="text-muted small">Sin facultades registradas</div>
+                    <div th:each="fac : ${facultades}" class="mb-2">
+                        <a th:href="@{/docente/por-facultad(facultad=${fac})}"
+                           class="btn btn-light w-100 text-start border">
+                            <i class="bi bi-building me-2 text-primary"></i>
+                            <span th:text="${fac}"></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

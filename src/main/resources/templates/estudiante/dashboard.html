@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Mi Dashboard - Saber Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+        body{background:#f0f2f5;}
+        .hero-card{background:linear-gradient(135deg,#1a1a2e,#0f3460);border:none;border-radius:16px;}
+        .step{border-radius:12px;padding:16px;text-align:center;}
+        .step.activo{border:2px solid #0d6efd;background:#e8f0fe;}
+        .step.completado{border:2px solid #1abc9c;background:#e8f8f5;}
+        .step.pendiente{border:2px dashed #dee2e6;background:#f8f9fa;opacity:.6;}
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar('ESTUDIANTE')}"></div>
+<div class="container py-4" style="max-width:960px">
+
+    <!-- Hero -->
+    <div class="card hero-card text-white mb-4 p-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h4 class="fw-bold mb-1">
+                    Bienvenido, <span th:text="${estudiante != null ? estudiante.primerApellido : 'Estudiante'}"></span>
+                </h4>
+                <p class="opacity-75 mb-2">Sistema de Gestión Saber Pro — UTS 2026</p>
+                <div th:if="${estudiante != null}" class="d-flex gap-2 flex-wrap">
+                    <span class="badge bg-light text-dark" th:text="'Registro: ' + ${estudiante.numeroRegistro}"></span>
+                    <span th:class="${'badge ' + (estudiante.tipoPrueba.name() == 'SABER_PRO' ? 'bg-warning text-dark' : 'bg-info text-dark')}"
+                          th:text="${estudiante.tipoPrueba.name() == 'SABER_PRO' ? 'Saber Pro' : 'Saber T&T'}"></span>
+                    <span th:class="${'badge ' +
+                        (estudiante.estado == 'FINALIZADO'       ? 'bg-success' :
+                         estudiante.estado == 'INSCRITO'         ? 'bg-primary' :
+                         estudiante.estado == 'PAGO_EN_REVISION' ? 'bg-warning text-dark' :
+                         estudiante.estado == 'PENDIENTE_PAGO'   ? 'bg-danger' : 'bg-secondary')}"
+                          th:text="${estudiante.estado}"></span>
+                </div>
+            </div>
+            <div class="col-md-4 text-center" th:if="${estudiante != null and estudiante.puntaje != null}">
+                <div class="rounded-circle mx-auto d-flex align-items-center justify-content-center flex-column"
+                     style="width:100px;height:100px;border:4px solid rgba(255,255,255,0.4)"
+                     th:style="${'width:100px;height:100px;border:4px solid rgba(255,255,255,0.4);background:' + (estudiante.aptoParaGraduacion ? 'rgba(26,188,156,0.3)' : 'rgba(231,76,60,0.3)')}">
+                    <span class="fs-2 fw-bold" th:text="${estudiante.puntaje}"></span>
+                    <small class="opacity-75" style="font-size:11px" th:text="${estudiante.puntajeNivel}"></small>
+                </div>
+                <p class="mt-2 mb-0 small opacity-75">Puntaje Global</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline del proceso -->
+    <div th:if="${estudiante != null}" class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header bg-white border-0 pt-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-diagram-3 me-2 text-primary"></i>Estado de tu Proceso</h6>
+        </div>
+        <div class="card-body">
+            <div class="row g-3 text-center">
+                <!-- Paso 1: Registro -->
+                <div class="col-md">
+                    <div th:class="${'step ' + (estudiante.estado != null ? 'completado' : 'pendiente')}">
+                        <i class="bi bi-person-plus-fill fs-3 text-success"></i>
+                        <p class="fw-semibold small mb-0 mt-2">1. Registro</p>
+                        <small class="text-success">Completado</small>
+                    </div>
+                </div>
+                <!-- Paso 2: Pago -->
+                <div class="col-md">
+                    <div th:class="${'step ' +
+                        (estudiante.estado == 'PENDIENTE_PAGO' ? 'activo' :
+                         estudiante.estado == 'PAGO_EN_REVISION' or estudiante.estado == 'INSCRITO' or estudiante.estado == 'FINALIZADO' ? 'completado' : 'pendiente')}">
+                        <i th:class="${'bi fs-3 ' +
+                            (estudiante.estado == 'PENDIENTE_PAGO' ? 'bi-credit-card text-primary' :
+                             'bi-check-circle-fill text-success')}"></i>
+                        <p class="fw-semibold small mb-0 mt-2">2. Pago</p>
+                        <small th:text="${estudiante.estado == 'PENDIENTE_PAGO' ? 'Pendiente — sube tu comprobante' :
+                                          estudiante.estado == 'PAGO_EN_REVISION' ? 'En revisión' : 'Aprobado'}"></small>
+                    </div>
+                </div>
+                <!-- Paso 3: Inscripción -->
+                <div class="col-md">
+                    <div th:class="${'step ' +
+                        (estudiante.estado == 'PAGO_EN_REVISION' ? 'activo' :
+                         estudiante.estado == 'INSCRITO' or estudiante.estado == 'FINALIZADO' ? 'completado' : 'pendiente')}">
+                        <i th:class="${'bi fs-3 ' +
+                            (estudiante.estado == 'PAGO_EN_REVISION' ? 'bi-hourglass-split text-warning' :
+                             estudiante.estado == 'INSCRITO' or estudiante.estado == 'FINALIZADO' ? 'bi-check-circle-fill text-success' : 'bi-lock text-muted')}"></i>
+                        <p class="fw-semibold small mb-0 mt-2">3. Inscripción</p>
+                        <small th:text="${estudiante.estado == 'PAGO_EN_REVISION' ? 'Coordinador revisando' :
+                                          estudiante.estado == 'INSCRITO' or estudiante.estado == 'FINALIZADO' ? 'Confirmada' : 'Pendiente'}"></small>
+                    </div>
+                </div>
+                <!-- Paso 4: Prueba -->
+                <div class="col-md">
+                    <div th:class="${'step ' +
+                        (estudiante.estado == 'INSCRITO' ? 'activo' :
+                         estudiante.estado == 'FINALIZADO' ? 'completado' : 'pendiente')}">
+                        <i th:class="${'bi fs-3 ' +
+                            (estudiante.estado == 'INSCRITO' ? 'bi-pencil-square text-primary' :
+                             estudiante.estado == 'FINALIZADO' ? 'bi-check-circle-fill text-success' : 'bi-lock text-muted')}"></i>
+                        <p class="fw-semibold small mb-0 mt-2">4. Presentar Prueba</p>
+                        <small th:text="${estudiante.estado == 'INSCRITO' ? 'Listo para presentar' :
+                                          estudiante.estado == 'FINALIZADO' ? 'Presentada' : 'Pendiente'}"></small>
+                    </div>
+                </div>
+                <!-- Paso 5: Resultados -->
+                <div class="col-md">
+                    <div th:class="${'step ' + (estudiante.estado == 'FINALIZADO' ? 'completado' : 'pendiente')}">
+                        <i th:class="${'bi fs-3 ' +
+                            (estudiante.estado == 'FINALIZADO' ? 'bi-trophy-fill text-success' : 'bi-lock text-muted')}"></i>
+                        <p class="fw-semibold small mb-0 mt-2">5. Resultados</p>
+                        <small th:text="${estudiante.estado == 'FINALIZADO' ? 'Disponibles' : 'Pendiente'}"></small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acción según estado -->
+            <div class="mt-3 text-center">
+                <a th:if="${estudiante.estado == 'PENDIENTE_PAGO'}"
+                   th:href="@{/estudiante/cargar-pago}"
+                   class="btn btn-primary btn-lg">
+                    <i class="bi bi-credit-card me-2"></i>Cargar Comprobante de Pago
+                </a>
+                <div th:if="${estudiante.estado == 'PAGO_EN_REVISION'}"
+                     class="alert alert-warning d-inline-block mb-0">
+                    <i class="bi bi-hourglass-split me-2"></i>
+                    Tu comprobante <strong th:text="${estudiante.comprobantePago}"></strong> está siendo revisado por el coordinador.
+                </div>
+                <div th:if="${estudiante.estado == 'INSCRITO'}"
+                     class="alert alert-success d-inline-block mb-0">
+                    <i class="bi bi-check-circle me-2"></i>
+                    Pago aprobado. Estás inscrito y listo para presentar la prueba. Los resultados aparecerán aquí cuando el coordinador los suba.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultados y beneficio (solo si están disponibles) -->
+    <div th:if="${estudiante != null and estudiante.puntaje != null}">
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-3 p-3">
+                    <small class="text-muted d-block">Comunicación Escrita</small>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0" th:text="${estudiante.comunicacionEscrita != null ? estudiante.comunicacionEscrita : '-'}"></h5>
+                        <span th:if="${estudiante.comunicacionEscritaNivel != null}"
+                              th:class="${'badge ' + (estudiante.comunicacionEscritaNivel == 'Nivel 4' ? 'bg-success' : estudiante.comunicacionEscritaNivel == 'Nivel 3' ? 'bg-primary' : estudiante.comunicacionEscritaNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${estudiante.comunicacionEscritaNivel}"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-3 p-3">
+                    <small class="text-muted d-block">Razonamiento Cuantitativo</small>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0" th:text="${estudiante.razonamientoCuantitativo != null ? estudiante.razonamientoCuantitativo : '-'}"></h5>
+                        <span th:if="${estudiante.razonamientoCuantitativoNivel != null}"
+                              th:class="${'badge ' + (estudiante.razonamientoCuantitativoNivel == 'Nivel 4' ? 'bg-success' : estudiante.razonamientoCuantitativoNivel == 'Nivel 3' ? 'bg-primary' : estudiante.razonamientoCuantitativoNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${estudiante.razonamientoCuantitativoNivel}"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm rounded-3 p-3">
+                    <small class="text-muted d-block">Diseño de Software</small>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="fw-bold mb-0" th:text="${estudiante.disenoSoftware != null ? estudiante.disenoSoftware : '-'}"></h5>
+                        <span th:if="${estudiante.disenoSoftwareNivel != null}"
+                              th:class="${'badge ' + (estudiante.disenoSoftwareNivel == 'Nivel 4' ? 'bg-success' : estudiante.disenoSoftwareNivel == 'Nivel 3' ? 'bg-primary' : estudiante.disenoSoftwareNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${estudiante.disenoSoftwareNivel}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Beneficio -->
+        <div class="card border-0 shadow-sm rounded-3 mb-4"
+             th:style="${'border-left:5px solid ' + (estudiante.aptoParaGraduacion ? '#1abc9c' : '#e74c3c') + ' !important'}">
+            <div class="card-body d-flex align-items-center gap-3">
+                <i th:class="${'bi fs-2 ' + (estudiante.aptoParaGraduacion ? 'bi-award-fill text-success' : 'bi-x-circle-fill text-danger')}"></i>
+                <div>
+                    <small class="text-muted d-block">Beneficio Acuerdo 01-009 UTS</small>
+                    <strong th:text="${beneficio}"></strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla resolución de beneficios -->
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="fw-bold mb-0"><i class="bi bi-file-earmark-ruled me-2 text-primary"></i>Tabla de Estímulos — Acuerdo 01-009 UTS</h6>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0 text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Rango</th>
+                            <th th:text="${estudiante.tipoPrueba.name() == 'SABER_PRO' ? 'Seminario Grado IV' : 'Seminario Grado II'}">Seminario</th>
+                            <th>Beca Grado</th>
+                            <th>Tu estado</th>
+                        </tr>
+                    </thead>
+                    <!-- Saber Pro -->
+                    <tbody th:if="${estudiante.tipoPrueba.name() == 'SABER_PRO'}">
+                        <tr th:class="${estudiante.puntaje >= 241 ? 'table-success fw-bold' : ''}">
+                            <td>≥ 241 pts</td>
+                            <td><span class="badge bg-success">5.0</span> + Exime informe</td>
+                            <td><span class="badge bg-success">100%</span></td>
+                            <td><i th:class="${estudiante.puntaje >= 241 ? 'bi bi-check-circle-fill text-success fs-5' : 'bi bi-dash text-muted'}"></i></td>
+                        </tr>
+                        <tr th:class="${estudiante.puntaje >= 211 and estudiante.puntaje < 241 ? 'table-primary fw-bold' : ''}">
+                            <td>211 – 240 pts</td>
+                            <td><span class="badge bg-primary">4.7</span> + Exime informe</td>
+                            <td><span class="badge bg-primary">50%</span></td>
+                            <td><i th:class="${estudiante.puntaje >= 211 and estudiante.puntaje < 241 ? 'bi bi-check-circle-fill text-primary fs-5' : 'bi bi-dash text-muted'}"></i></td>
+                        </tr>
+                        <tr th:class="${estudiante.puntaje >= 180 and estudiante.puntaje < 211 ? 'table-warning fw-bold' : ''}">
+                            <td>180 – 210 pts</td>
+                            <td><span class="badge bg-warning text-dark">4.5</span> + Exime informe</td>
+                            <td><span class="text-muted">No aplica</span></td>
+                            <td><i th:class="${estudiante.puntaje >= 180 and estudiante.puntaje < 211 ? 'bi bi-check-circle-fill text-warning fs-5' : 'bi bi-dash text-muted'}"></i></td>
+                        </tr>
+                        <tr th:class="${estudiante.puntaje >= 120 and estudiante.puntaje < 180 ? 'fw-bold' : ''}">
+                            <td>120 – 179 pts</td>
+                            <td><span class="text-muted">No aplica</span></td>
+                            <td><span class="text-muted">No aplica</span></td>
+                            <td><i th:class="${estudiante.puntaje >= 120 and estudiante.puntaje < 180 ? 'bi bi-check-circle-fill text-secondary fs-5' : 'bi bi-dash text-muted'}"></i></td>
+                        </tr>
+                        <tr th:class="${estudiante.puntaje < 120 ? 'table-danger fw-bold' : ''}">
+                            <td>&lt; 120 pts</td>
+                            <td colspan="2" class="text-danger">No apto para graduación</td>
+                            <td><i th:class="${estudiante.puntaje < 120 ? 'bi bi-x-circle-fill text-danger fs-5' : 'bi bi-dash text-muted'}"></i></td>
+                        </tr>
+                    </tbody>
+                    <!-- Saber T&T -->
+                    <tbody th:if="${estudiante.tipoPrueba.name() == 'SABER_TYT'}">
+                        <tr th:class="${estudiante.puntaje >= 171 ? 'table-success fw-bold' : ''}">
+                            <td>≥ 171 pts</td>
+                            <td><span class="badge bg-success">5.0</span> + Exime informe</td>
+                            <td><span class="badge bg-success">100%</span></td>
+                            <td><i th:class="${estudiante.puntaje >= 171 ? 'bi bi-check-circle-fill text-success fs-5' : 'bi bi-dash text-muted'}"></i></td>
+                        </tr>
+                        <tr th:class="${estudiante.puntaje >= 151 and estudiante.puntaje < 171 ? 'table-primary fw-bold' : ''}">
+                            <td>151 – 170 pts</td>
+                            <td><span class="badge bg-primary">4.7</span> + Exime informe</td>
+                            <td><span class="badge bg-primary">50%</span></td>
+                            <td><i th:class="${estudiante.puntaje >= 151 and estudiante.puntaje < 171 ? 'bi bi-check-circle-fill text-primary fs-5' : 'bi bi-dash text-muted'}"></i></td>
+                        </tr>
+                        <tr th:class="${estudiante.puntaje >= 120 and estudiante.puntaje < 151 ? 'table-warning fw-bold' : ''}">
+                            <td>120 – 150 pts</td>
+                            <td><span class="badge bg-warning text-dark">4.5</span> + Exime informe</td>
+                            <td><span class="text-muted">No aplica</span></td>
+                            <td><i th:class="${estudiante.puntaje >= 120 and estudiante.puntaje < 151 ? 'bi bi-check-circle-fill text-warning fs-5' : 'bi bi-dash text-muted'}"></i></td>
+                        </tr>
+                        <tr th:class="${estudiante.puntaje >= 80 and estudiante.puntaje < 120 ? 'fw-bold' : ''}">
+                            <td>80 – 119 pts</td>
+                            <td><span class="text-muted">No aplica</span></td>
+                            <td><span class="text-muted">No aplica</span></td>
+                            <td><i th:class="${estudiante.puntaje >= 80 and estudiante.puntaje < 120 ? 'bi bi-check-circle-fill text-secondary fs-5' : 'bi bi-dash text-muted'}"></i></td>
+                        </tr>
+                        <tr th:class="${estudiante.puntaje < 80 ? 'table-danger fw-bold' : ''}">
+                            <td>&lt; 80 pts</td>
+                            <td colspan="2" class="text-danger">No apto para graduación</td>
+                            <td><i th:class="${estudiante.puntaje < 80 ? 'bi bi-x-circle-fill text-danger fs-5' : 'bi bi-dash text-muted'}"></i></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${estudiante == null}" class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>No se encontraron datos asociados a tu cuenta.
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

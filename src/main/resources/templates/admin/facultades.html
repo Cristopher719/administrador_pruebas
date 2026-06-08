@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Facultades - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>body{background:#f0f2f5;}</style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar('ADMINISTRADOR')}"></div>
+<div class="container-fluid py-4 px-4">
+    <h2 class="fw-bold mb-1">Gestión de Facultades</h2>
+    <p class="text-muted mb-4">Administración de facultades de la UTS</p>
+
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible">
+        <span th:text="${mensaje}"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible">
+        <span th:text="${error}"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-4">
+        <!-- Formulario -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h6 class="fw-bold mb-0" th:text="${editando != null ? 'Editar Facultad' : 'Nueva Facultad'}">Nueva Facultad</h6>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="${editando != null ? '/admin/facultades/editar/' + facultad.id : '/admin/facultades/nueva'}"
+                          th:object="${facultad}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Nombre *</label>
+                            <input type="text" th:field="*{nombre}" class="form-control" required
+                                   placeholder="Ej: Tecnología e Ingeniería"/>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Descripción</label>
+                            <textarea th:field="*{descripcion}" class="form-control" rows="3"
+                                      placeholder="Descripción de la facultad"></textarea>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" th:field="*{activa}" class="form-check-input" id="activa"/>
+                            <label class="form-check-label" for="activa">Facultad activa</label>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>
+                                <span th:text="${editando != null ? 'Actualizar' : 'Crear'}"></span>
+                            </button>
+                            <a th:if="${editando != null}" th:href="@{/admin/facultades}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista -->
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h6 class="fw-bold mb-0">Facultades Registradas <span class="badge bg-secondary ms-2" th:text="${facultades.size()}">0</span></h6>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                        <tr><th>#</th><th>Nombre</th><th>Descripción</th><th>Estado</th><th>Acciones</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="f, i : ${facultades}">
+                            <td th:text="${i.count}"></td>
+                            <td class="fw-semibold" th:text="${f.nombre}"></td>
+                            <td class="small text-muted" th:text="${f.descripcion != null ? f.descripcion : '-'}"></td>
+                            <td><span th:class="${'badge ' + (f.activa ? 'bg-success' : 'bg-secondary')}"
+                                      th:text="${f.activa ? 'Activa' : 'Inactiva'}"></span></td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a th:href="@{/admin/facultades/editar/{id}(id=${f.id})}" class="btn btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                                    <a th:href="@{/admin/facultades/eliminar/{id}(id=${f.id})}" class="btn btn-outline-danger"
+                                       onclick="return confirm('¿Eliminar esta facultad?')"><i class="bi bi-trash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(facultades)}">
+                            <td colspan="5" class="text-center text-muted py-3">No hay facultades registradas</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

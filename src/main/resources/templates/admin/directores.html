@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Directores - Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>body{background:#f0f2f5;}</style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar('ADMINISTRADOR')}"></div>
+<div class="container-fluid py-4 px-4">
+    <h2 class="fw-bold mb-1">Gestión de Directores</h2>
+    <p class="text-muted mb-4">CRUD de directores de facultad</p>
+
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible">
+        <span th:text="${mensaje}"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible">
+        <span th:text="${error}"></span><button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-4">
+        <!-- Formulario -->
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h6 class="fw-bold mb-0" th:text="${editando != null ? 'Editar Director' : 'Nuevo Director'}"></h6>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="${editando != null ? '/admin/directores/editar/' + director.id : '/admin/directores/nuevo'}"
+                          th:object="${director}" method="post">
+                        <div class="row g-2">
+                            <div class="col-4">
+                                <label class="form-label small fw-semibold">Tipo Doc.</label>
+                                <select th:field="*{tipoDocumento}" class="form-select form-select-sm">
+                                    <option value="CC">CC</option><option value="CE">CE</option>
+                                </select>
+                            </div>
+                            <div class="col-8">
+                                <label class="form-label small fw-semibold">Número Documento *</label>
+                                <input type="text" th:field="*{numeroDocumento}" class="form-control form-control-sm" required/>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold">Primer Nombre *</label>
+                                <input type="text" th:field="*{primerNombre}" class="form-control form-control-sm" required/>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold">Segundo Nombre</label>
+                                <input type="text" th:field="*{segundoNombre}" class="form-control form-control-sm"/>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold">Primer Apellido *</label>
+                                <input type="text" th:field="*{primerApellido}" class="form-control form-control-sm" required/>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label small fw-semibold">Segundo Apellido</label>
+                                <input type="text" th:field="*{segundoApellido}" class="form-control form-control-sm"/>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Correo</label>
+                                <input type="email" th:field="*{correo}" class="form-control form-control-sm"/>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Teléfono</label>
+                                <input type="text" th:field="*{telefono}" class="form-control form-control-sm"/>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-semibold">Facultad</label>
+                                <select name="facultadId" class="form-select form-select-sm">
+                                    <option value="">-- Sin asignar --</option>
+                                    <option th:each="f : ${facultades}" th:value="${f.id}" th:text="${f.nombre}"
+                                            th:selected="${director.facultad != null and director.facultad.id == f.id}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2 mt-3">
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="bi bi-save me-1"></i><span th:text="${editando != null ? 'Actualizar' : 'Crear'}"></span>
+                            </button>
+                            <a th:if="${editando != null}" th:href="@{/admin/directores}" class="btn btn-secondary btn-sm">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista -->
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-0 pt-3">
+                    <h6 class="fw-bold mb-0">Directores Registrados <span class="badge bg-secondary ms-2" th:text="${directores.size()}">0</span></h6>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-dark">
+                        <tr><th>#</th><th>Documento</th><th>Nombre Completo</th><th>Correo</th><th>Facultad</th><th>Acciones</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="d, i : ${directores}">
+                            <td th:text="${i.count}"></td>
+                            <td class="small" th:text="${d.tipoDocumento + ' ' + d.numeroDocumento}"></td>
+                            <td th:text="${d.getNombreCompleto()}"></td>
+                            <td class="small" th:text="${d.correo != null ? d.correo : '-'}"></td>
+                            <td class="small" th:text="${d.facultad != null ? d.facultad.nombre : '-'}"></td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a th:href="@{/admin/directores/editar/{id}(id=${d.id})}" class="btn btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                                    <a th:href="@{/admin/directores/eliminar/{id}(id=${d.id})}" class="btn btn-outline-danger"
+                                       onclick="return confirm('¿Eliminar este director?')"><i class="bi bi-trash"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(directores)}">
+                            <td colspan="6" class="text-center text-muted py-3">No hay directores registrados</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Gestión de Pagos - Coordinador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>body{background:#f0f2f5;}</style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar('COORDINADOR')}"></div>
+<div class="container-fluid py-4 px-4">
+    <h2 class="fw-bold mb-1">Gestión de Pagos Saber Pro</h2>
+    <p class="text-muted mb-4">Revisión y aprobación de comprobantes de pago</p>
+
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible">
+        <span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${mensajeError}" class="alert alert-danger alert-dismissible">
+        <span th:text="${mensajeError}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Pagos en revisión -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header bg-warning bg-opacity-25 border-0 pt-3 d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0">
+                <i class="bi bi-eye-fill text-warning me-2"></i>Comprobantes en Revisión
+                <span class="badge bg-warning text-dark ms-2" th:text="${enRevision.size()}">0</span>
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr><th>Registro</th><th>Apellido</th><th>Tipo Prueba</th><th>Comprobante</th><th>Acciones</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${enRevision}">
+                        <td class="fw-semibold small" th:text="${e.numeroRegistro}"></td>
+                        <td th:text="${e.primerApellido}"></td>
+                        <td><span th:class="${'badge ' + (e.tipoPrueba.name() == 'SABER_PRO' ? 'bg-dark' : 'bg-secondary')}"
+                                  th:text="${e.tipoPrueba.name() == 'SABER_PRO' ? 'Saber Pro' : 'Saber T&T'}"></span></td>
+                        <td>
+                            <i class="bi bi-hash text-muted me-1"></i>
+                            <strong th:text="${e.comprobantePago}"></strong>
+                            <!-- Botón ver documento si existe -->
+                            <div th:if="${e.documentoComprobante != null}" class="mt-1">
+                                <a th:href="@{/coordinador/pagos/ver-documento/{id}(id=${e.id})}"
+                                   target="_blank" class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-eye me-1"></i>Ver Soporte
+                                    <small class="text-muted ms-1" th:text="'(' + ${e.documentoComprobante} + ')'"></small>
+                                </a>
+                            </div>
+                            <div th:unless="${e.documentoComprobante != null}" class="mt-1">
+                                <small class="text-muted"><i class="bi bi-file-x me-1"></i>Sin archivo adjunto</small>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/coordinador/pagos/aceptar/{id}(id=${e.id})}"
+                                   class="btn btn-success" title="Aprobar pago">
+                                    <i class="bi bi-check-lg me-1"></i>Aprobar
+                                </a>
+                                <a th:href="@{/coordinador/pagos/rechazar/{id}(id=${e.id})}"
+                                   class="btn btn-danger" title="Rechazar pago"
+                                   onclick="return confirm('¿Rechazar este comprobante?')">
+                                    <i class="bi bi-x-lg me-1"></i>Rechazar
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(enRevision)}">
+                        <td colspan="5" class="text-center text-muted py-3">
+                            <i class="bi bi-check-circle text-success me-2"></i>No hay comprobantes pendientes de revisión
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inscritos esperando resultados -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header bg-primary bg-opacity-10 border-0 pt-3 d-flex justify-content-between align-items-center">
+            <h6 class="fw-bold mb-0">
+                <i class="bi bi-person-check-fill text-primary me-2"></i>Inscritos — Esperando Resultados
+                <span class="badge bg-primary ms-2" th:text="${inscritos.size()}">0</span>
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr><th>Registro</th><th>Apellido</th><th>Tipo Prueba</th><th>Facultad</th><th>Subir Resultados</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${inscritos}">
+                        <td class="fw-semibold small" th:text="${e.numeroRegistro}"></td>
+                        <td th:text="${e.primerApellido}"></td>
+                        <td><span th:class="${'badge ' + (e.tipoPrueba.name() == 'SABER_PRO' ? 'bg-dark' : 'bg-secondary')}"
+                                  th:text="${e.tipoPrueba.name() == 'SABER_PRO' ? 'Saber Pro' : 'Saber T&T'}"></span></td>
+                        <td class="small" th:text="${e.facultad != null ? e.facultad : '-'}"></td>
+                        <td>
+                            <a th:href="@{/coordinador/resultados/{id}(id=${e.id})}"
+                               class="btn btn-sm btn-primary">
+                                <i class="bi bi-upload me-1"></i>Subir Notas
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(inscritos)}">
+                        <td colspan="5" class="text-center text-muted py-3">No hay estudiantes inscritos pendientes de notas</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pendientes de pago -->
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-danger bg-opacity-10 border-0 pt-3">
+            <h6 class="fw-bold mb-0">
+                <i class="bi bi-hourglass-split text-danger me-2"></i>Sin Comprobante de Pago
+                <span class="badge bg-danger ms-2" th:text="${pendientes.size()}">0</span>
+            </h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr><th>Registro</th><th>Apellido</th><th>Tipo Prueba</th><th>Estado</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${pendientes}">
+                        <td class="fw-semibold small" th:text="${e.numeroRegistro}"></td>
+                        <td th:text="${e.primerApellido}"></td>
+                        <td><span th:class="${'badge ' + (e.tipoPrueba.name() == 'SABER_PRO' ? 'bg-dark' : 'bg-secondary')}"
+                                  th:text="${e.tipoPrueba.name() == 'SABER_PRO' ? 'Saber Pro' : 'Saber T&T'}"></span></td>
+                        <td><span class="badge bg-danger">Pendiente pago</span></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(pendientes)}">
+                        <td colspan="4" class="text-center text-muted py-3">Todos los estudiantes han cargado su comprobante</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

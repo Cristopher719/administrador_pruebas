@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Resolución de Beneficios - Coordinador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>body{background:#f0f2f5;} @media print{.no-print{display:none;}}</style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar('COORDINADOR')}" class="no-print"></div>
+<div class="container-fluid py-4 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Resolución de Beneficios</h2>
+            <p class="text-muted mb-0">Acuerdo 01-009 Consejo Directivo UTS — Vigente desde enero 2025</p>
+        </div>
+        <button onclick="window.print()" class="btn btn-outline-secondary no-print">
+            <i class="bi bi-printer me-2"></i>Imprimir
+        </button>
+    </div>
+
+    <!-- Tabla de rangos oficial -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header bg-white border-0 pt-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-file-earmark-ruled me-2 text-primary"></i>Artículo 10 — Tabla de Estímulos Saber Pro (escala 0–300)</h6>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-bordered mb-0 text-center">
+                <thead class="table-dark">
+                    <tr><th>Rango</th><th>Exime Informe Final</th><th>Nota Seminario Grado IV</th><th>Beca Derecho Pecuniario de Grado</th><th>Estudiantes</th></tr>
+                </thead>
+                <tbody>
+                    <tr class="table-success">
+                        <td class="fw-bold">≥ 241 pts</td>
+                        <td><i class="bi bi-check-circle-fill text-success fs-5"></i> Concepto Aprobado</td>
+                        <td><span class="badge bg-success fs-6">5.0</span></td>
+                        <td><span class="badge bg-success fs-6">100%</span></td>
+                        <td><strong th:text="${proBeca100}">0</strong></td>
+                    </tr>
+                    <tr class="table-primary">
+                        <td class="fw-bold">211 – 240 pts</td>
+                        <td><i class="bi bi-check-circle-fill text-primary fs-5"></i> Concepto Aprobado</td>
+                        <td><span class="badge bg-primary fs-6">4.7</span></td>
+                        <td><span class="badge bg-primary fs-6">50%</span></td>
+                        <td><strong th:text="${proBeca50}">0</strong></td>
+                    </tr>
+                    <tr class="table-warning">
+                        <td class="fw-bold">180 – 210 pts</td>
+                        <td><i class="bi bi-check-circle-fill text-warning fs-5"></i> Concepto Aprobado</td>
+                        <td><span class="badge bg-warning text-dark fs-6">4.5</span></td>
+                        <td><span class="text-muted">No aplica</span></td>
+                        <td><strong th:text="${proExime}">0</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">120 – 179 pts</td>
+                        <td class="text-muted">No aplica</td>
+                        <td class="text-muted">No aplica</td>
+                        <td class="text-muted">No aplica</td>
+                        <td><strong th:text="${proMinimo}">0</strong></td>
+                    </tr>
+                    <tr class="table-danger">
+                        <td class="fw-bold">&lt; 120 pts</td>
+                        <td colspan="3" class="text-danger fw-bold">No apto para graduación — No cumple puntaje mínimo</td>
+                        <td><strong th:text="${proNoApto}">0</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Tabla T&T -->
+    <div class="card border-0 shadow-sm rounded-3 mb-4">
+        <div class="card-header bg-white border-0 pt-3">
+            <h6 class="fw-bold mb-0"><i class="bi bi-file-earmark-ruled me-2 text-secondary"></i>Artículo 10 — Tabla de Estímulos Saber T&amp;T (escala 0–200)</h6>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-bordered mb-0 text-center">
+                <thead class="table-dark">
+                    <tr><th>Rango</th><th>Exime Informe Final</th><th>Nota Seminario Grado II</th><th>Beca Derecho Pecuniario de Grado</th><th>Estudiantes</th></tr>
+                </thead>
+                <tbody>
+                    <tr class="table-success">
+                        <td class="fw-bold">≥ 171 pts</td>
+                        <td><i class="bi bi-check-circle-fill text-success fs-5"></i> Concepto Aprobado</td>
+                        <td><span class="badge bg-success fs-6">5.0</span></td>
+                        <td><span class="badge bg-success fs-6">100%</span></td>
+                        <td><strong th:text="${tytBeca100}">0</strong></td>
+                    </tr>
+                    <tr class="table-primary">
+                        <td class="fw-bold">151 – 170 pts</td>
+                        <td><i class="bi bi-check-circle-fill text-primary fs-5"></i> Concepto Aprobado</td>
+                        <td><span class="badge bg-primary fs-6">4.7</span></td>
+                        <td><span class="badge bg-primary fs-6">50%</span></td>
+                        <td><strong th:text="${tytBeca50}">0</strong></td>
+                    </tr>
+                    <tr class="table-warning">
+                        <td class="fw-bold">120 – 150 pts</td>
+                        <td><i class="bi bi-check-circle-fill text-warning fs-5"></i> Concepto Aprobado</td>
+                        <td><span class="badge bg-warning text-dark fs-6">4.5</span></td>
+                        <td><span class="text-muted">No aplica</span></td>
+                        <td><strong th:text="${tytExime}">0</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="fw-bold">80 – 119 pts</td>
+                        <td class="text-muted">No aplica</td>
+                        <td class="text-muted">No aplica</td>
+                        <td class="text-muted">No aplica</td>
+                        <td><strong th:text="${tytMinimo}">0</strong></td>
+                    </tr>
+                    <tr class="table-danger">
+                        <td class="fw-bold">&lt; 80 pts</td>
+                        <td colspan="3" class="text-danger fw-bold">No apto para graduación — No cumple puntaje mínimo</td>
+                        <td><strong th:text="${tytNoApto}">0</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Resolución individual -->
+    <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white border-0 pt-3">
+            <h6 class="fw-bold mb-0">Resolución Individual por Estudiante</h6>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover mb-0">
+                    <thead class="table-dark">
+                    <tr><th>#</th><th>Registro</th><th>Apellido</th><th>Tipo</th><th>Puntaje</th><th>Nivel</th><th>Apto</th><th>Estímulo Acuerdo 01-009</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e, i : ${todos}"
+                        th:class="${e.puntaje != null and e.tipoPrueba.name() == 'SABER_PRO' and e.puntaje >= 241 ? 'table-success' :
+                                   e.puntaje != null and e.tipoPrueba.name() == 'SABER_PRO' and e.puntaje >= 211 ? 'table-primary' :
+                                   e.puntaje != null and e.tipoPrueba.name() == 'SABER_PRO' and e.puntaje >= 180 ? 'table-warning' :
+                                   e.puntaje != null and e.tipoPrueba.name() == 'SABER_TYT' and e.puntaje >= 171 ? 'table-success' :
+                                   e.puntaje != null and e.tipoPrueba.name() == 'SABER_TYT' and e.puntaje >= 151 ? 'table-primary' :
+                                   e.puntaje != null and e.tipoPrueba.name() == 'SABER_TYT' and e.puntaje >= 120 ? 'table-warning' :
+                                   e.aptoParaGraduacion == false ? 'table-danger' : ''}">
+                        <td th:text="${i.count}"></td>
+                        <td class="small fw-semibold" th:text="${e.numeroRegistro}"></td>
+                        <td th:text="${e.primerApellido}"></td>
+                        <td><span th:class="${'badge ' + (e.tipoPrueba.name() == 'SABER_PRO' ? 'bg-dark' : 'bg-secondary')}"
+                                  th:text="${e.tipoPrueba.name() == 'SABER_PRO' ? 'Pro' : 'T&T'}"></span></td>
+                        <td><strong th:text="${e.puntaje != null ? e.puntaje : 'Sin notas'}"></strong></td>
+                        <td><span th:if="${e.puntaje != null}"
+                                  th:class="${'badge ' + (e.puntajeNivel == 'Nivel 4' ? 'bg-success' : e.puntajeNivel == 'Nivel 3' ? 'bg-primary' : e.puntajeNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                                  th:text="${e.puntajeNivel}"></span></td>
+                        <td>
+                            <span th:if="${e.aptoParaGraduacion}" class="badge bg-success">Apto</span>
+                            <span th:unless="${e.aptoParaGraduacion}" class="badge bg-danger">No apto</span>
+                        </td>
+                        <td class="small" th:text="${e.calcularBeneficio()}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

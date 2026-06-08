@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Saber Pro - Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+        body { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; }
+        .login-card { border: none; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+        .login-header { background: linear-gradient(135deg, #e94560, #0f3460); border-radius: 16px 16px 0 0; }
+        .btn-login { background: linear-gradient(135deg, #e94560, #c0392b); border: none; }
+        .btn-login:hover { background: linear-gradient(135deg, #c0392b, #a93226); }
+        .form-control:focus { border-color: #e94560; box-shadow: 0 0 0 0.2rem rgba(233,69,96,0.25); }
+    </style>
+</head>
+<body class="d-flex align-items-center justify-content-center">
+<div class="container" style="max-width:420px">
+    <div class="card login-card">
+        <div class="login-header text-white text-center py-4">
+            <i class="bi bi-mortarboard-fill" style="font-size:3rem"></i>
+            <h4 class="mt-2 mb-0 fw-bold">Sistema Saber Pro</h4>
+            <small class="opacity-75">Gestión de Resultados</small>
+        </div>
+        <div class="card-body p-4">
+            <div th:if="${error}" class="alert alert-danger d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${error}"></span>
+            </div>
+            <form th:action="@{/login}" method="post">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Usuario</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+                        <input type="text" name="username" class="form-control" placeholder="Ingrese su usuario" required/>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">Contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" name="password" class="form-control" placeholder="Ingrese su contraseña" required/>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-login btn-primary w-100 py-2 fw-bold text-white">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar
+                </button>
+            </form>
+            <hr class="my-3"/>
+            <div class="small text-muted text-center">
+                <strong>Cuentas de prueba:</strong><br/>
+                <span class="d-block mt-1"><i class="bi bi-shield-fill-check text-danger me-1"></i>admin / admin123</span>
+                <span class="d-block"><i class="bi bi-person-badge text-primary me-1"></i>coordinador / coord123</span>
+                <span class="d-block"><i class="bi bi-person-workspace text-success me-1"></i>docente / doc123</span>
+                <span class="d-block"><i class="bi bi-mortarboard text-warning me-1"></i>est1 / est123 &nbsp;|&nbsp; est2 / est123</span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

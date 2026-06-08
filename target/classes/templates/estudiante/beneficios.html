@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Beneficios Académicos - Saber Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+        body{background:#f0f2f5;}
+        .benefit-card{border:none;border-radius:16px;transition:transform .2s;}
+        .benefit-card:hover{transform:translateY(-4px);}
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar('ESTUDIANTE')}"></div>
+<div class="container py-4" style="max-width:800px">
+    <h2 class="fw-bold mb-1">Beneficios Académicos</h2>
+    <p class="text-muted mb-4">Resolución de beneficios según resultados Saber Pro 2026</p>
+
+    <div th:if="${estudiante != null and estudiante.puntaje != null}">
+
+        <!-- Tarjeta principal del beneficio -->
+        <div class="card benefit-card shadow mb-4 text-white"
+             th:style="${'background:linear-gradient(135deg,' + (estudiante.puntaje >= 191 ? '#1abc9c,#16a085' : estudiante.puntaje >= 156 ? '#3498db,#2980b9' : estudiante.puntaje >= 126 ? '#f39c12,#e67e22' : '#e74c3c,#c0392b') + ')'}">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-2 text-center">
+                        <i th:class="${'bi ' + (estudiante.puntaje >= 191 ? 'bi-trophy-fill' : estudiante.puntaje >= 156 ? 'bi-star-fill' : estudiante.puntaje >= 126 ? 'bi-circle-half' : 'bi-exclamation-circle-fill')}"
+                           style="font-size:3.5rem"></i>
+                    </div>
+                    <div class="col-md-10">
+                        <h4 class="fw-bold mb-1" th:text="${beneficio}"></h4>
+                        <p class="opacity-75 mb-2">
+                            Puntaje Global: <strong th:text="${estudiante.puntaje}"></strong> —
+                            <span th:text="${estudiante.puntajeNivel}"></span>
+                        </p>
+                        <span class="badge bg-white"
+                              th:style="${'color:' + (estudiante.puntaje >= 191 ? '#16a085' : estudiante.puntaje >= 156 ? '#2980b9' : estudiante.puntaje >= 126 ? '#e67e22' : '#c0392b')}"
+                              th:text="${estudiante.puntajeNivel}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de beneficios por nivel (referencia) -->
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="fw-bold mb-0"><i class="bi bi-info-circle me-2 text-primary"></i>Tabla de Beneficios — Tecnología e Ingeniería</h6>
+            </div>
+            <div class="card-body p-0">
+                <table class="table mb-0">
+                    <thead class="table-dark">
+                        <tr><th>Nivel</th><th>Rango de Puntaje</th><th>Beneficio</th><th>Tu estado</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr th:class="${estudiante.puntaje >= 191 ? 'table-success' : ''}">
+                            <td><span class="badge bg-success">Nivel 4</span></td>
+                            <td>≥ 191</td>
+                            <td><i class="bi bi-trophy-fill text-warning me-1"></i>Matrícula de Honor — Excelencia Académica</td>
+                            <td>
+                                <i th:class="${estudiante.puntaje >= 191 ? 'bi bi-check-circle-fill text-success' : 'bi bi-x-circle text-muted'}"></i>
+                            </td>
+                        </tr>
+                        <tr th:class="${estudiante.puntaje >= 156 and estudiante.puntaje < 191 ? 'table-primary' : ''}">
+                            <td><span class="badge bg-primary">Nivel 3</span></td>
+                            <td>156 – 190</td>
+                            <td><i class="bi bi-star-fill text-primary me-1"></i>Reconocimiento Académico Destacado</td>
+                            <td>
+                                <i th:class="${estudiante.puntaje >= 156 and estudiante.puntaje < 191 ? 'bi bi-check-circle-fill text-primary' : 'bi bi-x-circle text-muted'}"></i>
+                            </td>
+                        </tr>
+                        <tr th:class="${estudiante.puntaje >= 126 and estudiante.puntaje < 156 ? 'table-warning' : ''}">
+                            <td><span class="badge bg-warning text-dark">Nivel 2</span></td>
+                            <td>126 – 155</td>
+                            <td><i class="bi bi-dash-circle text-warning me-1"></i>Sin beneficio económico</td>
+                            <td>
+                                <i th:class="${estudiante.puntaje >= 126 and estudiante.puntaje < 156 ? 'bi bi-check-circle-fill text-warning' : 'bi bi-x-circle text-muted'}"></i>
+                            </td>
+                        </tr>
+                        <tr th:class="${estudiante.puntaje < 126 ? 'table-danger' : ''}">
+                            <td><span class="badge bg-danger">Nivel 1</span></td>
+                            <td>&lt; 126</td>
+                            <td><i class="bi bi-clipboard-x text-danger me-1"></i>Requiere Plan de Mejora Académica</td>
+                            <td>
+                                <i th:class="${estudiante.puntaje < 126 ? 'bi bi-check-circle-fill text-danger' : 'bi bi-x-circle text-muted'}"></i>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Competencias con nivel 4 individual -->
+        <div class="card border-0 shadow-sm rounded-3" th:if="${estudiante.puntaje >= 156}">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="fw-bold mb-0"><i class="bi bi-award me-2 text-success"></i>Competencias Destacadas</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-md-6" th:if="${estudiante.comunicacionEscrita != null and estudiante.comunicacionEscrita >= 156}">
+                        <div class="alert alert-success py-2 mb-0"><i class="bi bi-check-circle me-2"></i>Comunicación Escrita — <strong th:text="${estudiante.comunicacionEscritaNivel}"></strong></div>
+                    </div>
+                    <div class="col-md-6" th:if="${estudiante.razonamientoCuantitativo != null and estudiante.razonamientoCuantitativo >= 156}">
+                        <div class="alert alert-success py-2 mb-0"><i class="bi bi-check-circle me-2"></i>Razonamiento Cuantitativo — <strong th:text="${estudiante.razonamientoCuantitativoNivel}"></strong></div>
+                    </div>
+                    <div class="col-md-6" th:if="${estudiante.lecturaCritica != null and estudiante.lecturaCritica >= 156}">
+                        <div class="alert alert-success py-2 mb-0"><i class="bi bi-check-circle me-2"></i>Lectura Crítica — <strong th:text="${estudiante.lecturaCriticaNivel}"></strong></div>
+                    </div>
+                    <div class="col-md-6" th:if="${estudiante.formulacionProyectos != null and estudiante.formulacionProyectos >= 156}">
+                        <div class="alert alert-success py-2 mb-0"><i class="bi bi-check-circle me-2"></i>Formulación Proyectos — <strong th:text="${estudiante.formulacionProyectosNivel}"></strong></div>
+                    </div>
+                    <div class="col-md-6" th:if="${estudiante.disenoSoftware != null and estudiante.disenoSoftware >= 156}">
+                        <div class="alert alert-success py-2 mb-0"><i class="bi bi-check-circle me-2"></i>Diseño de Software — <strong th:text="${estudiante.disenoSoftwareNivel}"></strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${estudiante == null or estudiante.puntaje == null}" class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>No tienes resultados disponibles para calcular beneficios.
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

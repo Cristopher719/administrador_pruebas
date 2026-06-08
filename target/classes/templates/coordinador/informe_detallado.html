@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Informe Detallado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>body{background:#f0f2f5;} @media print{.no-print{display:none;}}</style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar('COORDINADOR')}" class="no-print"></div>
+<div class="container py-4" style="max-width:900px">
+    <h2 class="fw-bold mb-3">Informe Detallado por Cédula</h2>
+
+    <div class="card border-0 shadow-sm rounded-3 mb-4 no-print">
+        <div class="card-body">
+            <form th:action="@{/coordinador/informe-detallado}" method="get" class="d-flex gap-2">
+                <input type="text" name="cedula" class="form-control" placeholder="Ingrese número de cédula..." th:value="${cedula}"/>
+                <button class="btn btn-primary px-4"><i class="bi bi-search me-2"></i>Buscar</button>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${estudiante != null}">
+        <div class="d-flex justify-content-between mb-3 no-print">
+            <h5 class="fw-bold">Resultados de: <span th:text="${estudiante.primerApellido}"></span></h5>
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm"><i class="bi bi-printer me-1"></i>Imprimir</button>
+        </div>
+
+        <!-- Info card -->
+        <div class="card border-0 shadow-sm rounded-3 mb-3">
+            <div class="card-header bg-primary text-white"><h6 class="mb-0"><i class="bi bi-person-fill me-2"></i>Información del Estudiante</h6></div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-md-4"><small class="text-muted d-block">Registro</small><strong th:text="${estudiante.numeroRegistro}"></strong></div>
+                    <div class="col-md-4"><small class="text-muted d-block">Apellido</small><strong th:text="${estudiante.primerApellido}"></strong></div>
+                    <div class="col-md-4"><small class="text-muted d-block">Estado</small>
+                        <span th:class="${'badge ' + (estudiante.estado == 'ACTIVO' ? 'bg-success' : 'bg-danger')}" th:text="${estudiante.estado}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Puntajes -->
+        <div class="card border-0 shadow-sm rounded-3 mb-3">
+            <div class="card-header bg-white border-0 pt-3"><h6 class="fw-bold">Resultados Detallados</h6></div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center p-3 rounded-3 text-white mb-2"
+                             style="background:linear-gradient(135deg,#1a1a2e,#0f3460)">
+                            <span class="fw-bold fs-5">PUNTAJE GLOBAL SABER PRO</span>
+                            <div class="text-end">
+                                <span class="fs-2 fw-bold" th:text="${estudiante.puntaje != null ? estudiante.puntaje : 'ANULADO'}"></span>
+                                <div><span class="badge bg-warning text-dark" th:text="${estudiante.puntajeNivel != null ? estudiante.puntajeNivel : '-'}"></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:each="comp : ${ {{'Comunicación Escrita', estudiante.comunicacionEscrita, estudiante.comunicacionEscritaNivel},
+                                              {'Razonamiento Cuantitativo', estudiante.razonamientoCuantitativo, estudiante.razonamientoCuantitativoNivel},
+                                              {'Lectura Crítica', estudiante.lecturaCritica, estudiante.lecturaCriticaNivel},
+                                              {'Competencias Ciudadanas', estudiante.competenciasCiudadanas, estudiante.competenciasCiudadanasNivel},
+                                              {'Inglés', estudiante.ingles, estudiante.inglesNivel},
+                                              {'Formulación de Proyectos', estudiante.formulacionProyectos, estudiante.formulacionProyectosNivel},
+                                              {'Pensamiento Científico', estudiante.pensamientoCientifico, estudiante.pensamientoCientificoNivel},
+                                              {'Diseño de Software', estudiante.disenoSoftware, estudiante.disenoSoftwareNivel}} }" class="col-md-6" th:if="false"></div>
+                    <!-- Simplified table approach -->
+                    <div class="col-12">
+                        <table class="table table-bordered table-sm">
+                            <thead class="table-light"><tr><th>Competencia</th><th class="text-center">Puntaje</th><th class="text-center">Nivel</th></tr></thead>
+                            <tbody>
+                            <tr>
+                                <td>Comunicación Escrita</td>
+                                <td class="text-center" th:text="${estudiante.comunicacionEscrita != null ? estudiante.comunicacionEscrita : '-'}"></td>
+                                <td class="text-center"><span th:class="${'badge ' + (estudiante.comunicacionEscritaNivel == 'Nivel 4' ? 'bg-success' : estudiante.comunicacionEscritaNivel == 'Nivel 3' ? 'bg-primary' : estudiante.comunicacionEscritaNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                                                              th:text="${estudiante.comunicacionEscritaNivel != null ? estudiante.comunicacionEscritaNivel : '-'}"></span></td>
+                            </tr>
+                            <tr>
+                                <td>Razonamiento Cuantitativo</td>
+                                <td class="text-center" th:text="${estudiante.razonamientoCuantitativo != null ? estudiante.razonamientoCuantitativo : '-'}"></td>
+                                <td class="text-center"><span th:class="${'badge ' + (estudiante.razonamientoCuantitativoNivel == 'Nivel 4' ? 'bg-success' : estudiante.razonamientoCuantitativoNivel == 'Nivel 3' ? 'bg-primary' : estudiante.razonamientoCuantitativoNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                                                              th:text="${estudiante.razonamientoCuantitativoNivel != null ? estudiante.razonamientoCuantitativoNivel : '-'}"></span></td>
+                            </tr>
+                            <tr>
+                                <td>Lectura Crítica</td>
+                                <td class="text-center" th:text="${estudiante.lecturaCritica != null ? estudiante.lecturaCritica : '-'}"></td>
+                                <td class="text-center"><span th:class="${'badge ' + (estudiante.lecturaCriticaNivel == 'Nivel 4' ? 'bg-success' : estudiante.lecturaCriticaNivel == 'Nivel 3' ? 'bg-primary' : estudiante.lecturaCriticaNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                                                              th:text="${estudiante.lecturaCriticaNivel != null ? estudiante.lecturaCriticaNivel : '-'}"></span></td>
+                            </tr>
+                            <tr>
+                                <td>Competencias Ciudadanas</td>
+                                <td class="text-center" th:text="${estudiante.competenciasCiudadanas != null ? estudiante.competenciasCiudadanas : '-'}"></td>
+                                <td class="text-center"><span th:class="${'badge ' + (estudiante.competenciasCiudadanasNivel == 'Nivel 4' ? 'bg-success' : estudiante.competenciasCiudadanasNivel == 'Nivel 3' ? 'bg-primary' : estudiante.competenciasCiudadanasNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                                                              th:text="${estudiante.competenciasCiudadanasNivel != null ? estudiante.competenciasCiudadanasNivel : '-'}"></span></td>
+                            </tr>
+                            <tr>
+                                <td>Inglés</td>
+                                <td class="text-center" th:text="${estudiante.ingles != null ? estudiante.ingles : '-'}"></td>
+                                <td class="text-center"><span th:class="${'badge ' + (estudiante.inglesNivel == 'Nivel 4' ? 'bg-success' : estudiante.inglesNivel == 'Nivel 3' ? 'bg-primary' : estudiante.inglesNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                                                              th:text="${estudiante.inglesNivel != null ? estudiante.inglesNivel : '-'}"></span></td>
+                            </tr>
+                            <tr>
+                                <td>Formulación de Proyectos de Ingeniería</td>
+                                <td class="text-center" th:text="${estudiante.formulacionProyectos != null ? estudiante.formulacionProyectos : '-'}"></td>
+                                <td class="text-center"><span th:class="${'badge ' + (estudiante.formulacionProyectosNivel == 'Nivel 4' ? 'bg-success' : estudiante.formulacionProyectosNivel == 'Nivel 3' ? 'bg-primary' : estudiante.formulacionProyectosNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                                                              th:text="${estudiante.formulacionProyectosNivel != null ? estudiante.formulacionProyectosNivel : '-'}"></span></td>
+                            </tr>
+                            <tr>
+                                <td>Pensamiento Científico - Matemáticas y Estadística</td>
+                                <td class="text-center" th:text="${estudiante.pensamientoCientifico != null ? estudiante.pensamientoCientifico : '-'}"></td>
+                                <td class="text-center"><span th:class="${'badge ' + (estudiante.pensamientoCientificoNivel == 'Nivel 4' ? 'bg-success' : estudiante.pensamientoCientificoNivel == 'Nivel 3' ? 'bg-primary' : estudiante.pensamientoCientificoNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                                                              th:text="${estudiante.pensamientoCientificoNivel != null ? estudiante.pensamientoCientificoNivel : '-'}"></span></td>
+                            </tr>
+                            <tr>
+                                <td>Diseño de Software</td>
+                                <td class="text-center" th:text="${estudiante.disenoSoftware != null ? estudiante.disenoSoftware : '-'}"></td>
+                                <td class="text-center"><span th:class="${'badge ' + (estudiante.disenoSoftwareNivel == 'Nivel 4' ? 'bg-success' : estudiante.disenoSoftwareNivel == 'Nivel 3' ? 'bg-primary' : estudiante.disenoSoftwareNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                                                              th:text="${estudiante.disenoSoftwareNivel != null ? estudiante.disenoSoftwareNivel : '-'}"></span></td>
+                            </tr>
+                            <tr class="table-light">
+                                <td><strong>Nivel Inglés (MCER)</strong></td>
+                                <td colspan="2" class="text-center"><span class="badge bg-info text-dark fs-6" th:text="${estudiante.nivelIngles != null ? estudiante.nivelIngles : '-'}"></span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3 mb-0">
+                    <i class="bi bi-award me-2"></i>
+                    <strong>Beneficio:</strong> <span th:text="${estudiante.calcularBeneficio()}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${cedula != null and estudiante == null}" class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>No se encontró estudiante con la cédula: <strong th:text="${cedula}"></strong>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

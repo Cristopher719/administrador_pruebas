@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Dashboard Coordinador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>body{background:#f0f2f5;} .stat-card{border:none;border-radius:12px;transition:transform .2s;} .stat-card:hover{transform:translateY(-4px);}</style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar('COORDINADOR')}"></div>
+<div class="container-fluid py-4 px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0">Dashboard Coordinador</h2>
+            <p class="text-muted mb-0">Gestión de Estudiantes Saber Pro — UTS 2026</p>
+        </div>
+        <a th:href="@{/coordinador/estudiantes/nuevo}" class="btn btn-success">
+            <i class="bi bi-plus-circle me-2"></i>Nuevo Estudiante
+        </a>
+    </div>
+
+    <!-- Estado del proceso -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#fd7043,#e64a19)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-hourglass-split" style="font-size:1.8rem"></i>
+                    <h4 class="fw-bold mt-1 mb-0" th:text="${pendientes}">0</h4>
+                    <small>Pendientes de Pago</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#f39c12,#e67e22)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-eye-fill" style="font-size:1.8rem"></i>
+                    <h4 class="fw-bold mt-1 mb-0" th:text="${pagoRevision}">0</h4>
+                    <small>Pagos en Revisión</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#3498db,#2980b9)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-person-check-fill" style="font-size:1.8rem"></i>
+                    <h4 class="fw-bold mt-1 mb-0" th:text="${inscritos}">0</h4>
+                    <small>Inscritos (sin notas)</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#1abc9c,#16a085)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-check-circle-fill" style="font-size:1.8rem"></i>
+                    <h4 class="fw-bold mt-1 mb-0" th:text="${resFinalizados}">0</h4>
+                    <small>Con Resultados</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Niveles + acciones -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-2">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-people-fill" style="font-size:1.5rem"></i>
+                    <h4 class="fw-bold mt-1 mb-0" th:text="${totalEstudiantes}">0</h4>
+                    <small>Total</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#1abc9c,#16a085)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-trophy-fill" style="font-size:1.5rem"></i>
+                    <h4 class="fw-bold mt-1 mb-0" th:text="${nivel4}">0</h4>
+                    <small>Nivel 4</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#3498db,#2980b9)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-star-fill" style="font-size:1.5rem"></i>
+                    <h4 class="fw-bold mt-1 mb-0" th:text="${nivel3}">0</h4>
+                    <small>Nivel 3</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#f39c12,#e67e22)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-circle-half" style="font-size:1.5rem"></i>
+                    <h4 class="fw-bold mt-1 mb-0" th:text="${nivel2}">0</h4>
+                    <small>Nivel 2</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-exclamation-circle-fill" style="font-size:1.5rem"></i>
+                    <h4 class="fw-bold mt-1 mb-0" th:text="${nivel1}">0</h4>
+                    <small>Nivel 1</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card text-white" style="background:linear-gradient(135deg,#f093fb,#f5576c)">
+                <div class="card-body text-center py-3">
+                    <i class="bi bi-calculator-fill" style="font-size:1.5rem"></i>
+                    <h4 class="fw-bold mt-1 mb-0" th:text="${promedio != null ? #numbers.formatDecimal(promedio,1,1) : 'N/A'}">0</h4>
+                    <small>Promedio</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-0 pt-3"><h6 class="fw-bold">Distribución por Niveles</h6></div>
+                <div class="card-body">
+                    <canvas id="chart" height="250"
+                        th:data-n4="${nivel4}" th:data-n3="${nivel3}"
+                        th:data-n2="${nivel2}" th:data-n1="${nivel1}"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-header bg-white border-0 pt-3"><h6 class="fw-bold">Acciones Rápidas</h6></div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a th:href="@{/coordinador/pagos}" class="btn btn-warning text-start py-2 position-relative">
+                            <i class="bi bi-credit-card me-2"></i>Gestionar Pagos
+                            <span th:if="${pagoRevision > 0}" class="badge bg-danger position-absolute top-0 end-0 mt-1 me-1"
+                                  th:text="${pagoRevision} + ' pendientes'"></span>
+                        </a>
+                        <a th:href="@{/coordinador/estudiantes}" class="btn btn-outline-primary text-start py-2"><i class="bi bi-people me-2"></i>Ver todos los estudiantes</a>
+                        <a th:href="@{/coordinador/informe-general}" class="btn btn-outline-success text-start py-2"><i class="bi bi-bar-chart me-2"></i>Informe general</a>
+                        <a th:href="@{/coordinador/informe-detallado}" class="btn btn-outline-info text-start py-2"><i class="bi bi-person-lines-fill me-2"></i>Informe detallado</a>
+                        <a th:href="@{/coordinador/beneficios}" class="btn btn-outline-secondary text-start py-2"><i class="bi bi-award me-2"></i>Resolución de beneficios</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    var el = document.getElementById('chart');
+    new Chart(el, {
+        type: 'bar',
+        data: {
+            labels: ['Nivel 4','Nivel 3','Nivel 2','Nivel 1'],
+            datasets: [{
+                label: 'Estudiantes',
+                data: [
+                    parseInt(el.dataset.n4)||0,
+                    parseInt(el.dataset.n3)||0,
+                    parseInt(el.dataset.n2)||0,
+                    parseInt(el.dataset.n1)||0
+                ],
+                backgroundColor: ['#1abc9c','#3498db','#f39c12','#e74c3c'],
+                borderRadius: 6
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+</script>
+</body>
+</html>

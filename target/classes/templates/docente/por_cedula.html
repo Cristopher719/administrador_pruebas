@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Por Cédula - Docente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>body{background:#f0f2f5;} @media print{.no-print{display:none;}}</style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar('DOCENTE')}" class="no-print"></div>
+<div class="container py-4" style="max-width:860px">
+    <h2 class="fw-bold mb-1">Consulta por Cédula / Registro</h2>
+    <p class="text-muted mb-4">Informe individual detallado del estudiante</p>
+
+    <div class="card border-0 shadow-sm rounded-3 mb-4 no-print">
+        <div class="card-body">
+            <form th:action="@{/docente/por-cedula}" method="get" class="d-flex gap-2">
+                <input type="text" name="cedula" class="form-control"
+                       placeholder="Número de cédula o número de registro (EK2018...)"
+                       th:value="${cedula}"/>
+                <button class="btn btn-primary px-4"><i class="bi bi-search me-1"></i>Buscar</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Resultado encontrado -->
+    <div th:if="${estudiante != null}">
+        <div class="d-flex justify-content-between align-items-center mb-3 no-print">
+            <h5 class="fw-bold mb-0">Resultado encontrado</h5>
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-printer me-1"></i>Imprimir
+            </button>
+        </div>
+
+        <!-- Encabezado estudiante -->
+        <div class="card border-0 shadow-sm rounded-3 mb-3">
+            <div class="card-header text-white" style="background:linear-gradient(135deg,#1a1a2e,#0f3460)">
+                <div class="row align-items-center py-1">
+                    <div class="col-md-8">
+                        <h5 class="fw-bold mb-1" th:text="${estudiante.primerApellido + (estudiante.segundoApellido != null ? ' ' + estudiante.segundoApellido : '')}"></h5>
+                        <small class="opacity-75" th:text="'Registro: ' + ${estudiante.numeroRegistro}"></small>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <span th:class="${'badge fs-6 ' + (estudiante.tipoPrueba.name() == 'SABER_PRO' ? 'bg-warning text-dark' : 'bg-info text-dark')}"
+                              th:text="${estudiante.tipoPrueba.name() == 'SABER_PRO' ? 'Saber Pro' : 'Saber T&T'}"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Facultad</small>
+                        <strong th:text="${estudiante.facultad != null ? estudiante.facultad : '-'}"></strong>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Estado</small>
+                        <span th:class="${'badge ' + (estudiante.estado == 'ACTIVO' ? 'bg-success' : 'bg-danger')}"
+                              th:text="${estudiante.estado}"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Puntaje Mínimo Requerido</small>
+                        <strong th:text="${estudiante.getPuntajeMinimo() + ' / ' + estudiante.getPuntajeMaximo() + ' pts'}"></strong>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Apto para Graduación</small>
+                        <span th:if="${estudiante.aptoParaGraduacion}" class="badge bg-success fs-6"><i class="bi bi-check-circle me-1"></i>Sí</span>
+                        <span th:unless="${estudiante.aptoParaGraduacion}" class="badge bg-danger fs-6"><i class="bi bi-x-circle me-1"></i>No</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Puntaje global -->
+        <div th:if="${estudiante.puntaje != null}" class="card border-0 shadow-sm rounded-3 mb-3">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h6 class="fw-bold mb-2">Puntaje Global</h6>
+                        <div class="progress" style="height:14px;border-radius:7px;">
+                            <div class="progress-bar fw-bold"
+                                 th:style="${'width:' + (estudiante.puntaje * 100 / estudiante.getPuntajeMaximo()) + '%;background:' + (estudiante.aptoParaGraduacion ? '#1abc9c' : '#e74c3c')}"
+                                 role="progressbar"
+                                 th:text="${estudiante.puntaje + ' pts'}"></div>
+                        </div>
+                        <small class="text-muted">Escala 0 – <span th:text="${estudiante.getPuntajeMaximo()}"></span> pts | Mínimo: <span th:text="${estudiante.getPuntajeMinimo()}"></span> pts</small>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="display-4 fw-bold"
+                             th:style="${'color:' + (estudiante.aptoParaGraduacion ? '#1abc9c' : '#e74c3c')}"
+                             th:text="${estudiante.puntaje}"></div>
+                        <span th:class="${'badge fs-6 ' + (estudiante.puntajeNivel == 'Nivel 4' ? 'bg-success' : estudiante.puntajeNivel == 'Nivel 3' ? 'bg-primary' : estudiante.puntajeNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${estudiante.puntajeNivel}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla competencias -->
+        <div th:if="${estudiante.puntaje != null}" class="card border-0 shadow-sm rounded-3 mb-3">
+            <div class="card-header bg-white border-0 pt-3"><h6 class="fw-bold">Detalle de Competencias</h6></div>
+            <div class="card-body p-0">
+                <table class="table table-bordered mb-0">
+                    <thead class="table-light"><tr><th>Competencia</th><th class="text-center">Puntaje</th><th class="text-center">Nivel</th></tr></thead>
+                    <tbody>
+                    <tr><td>Comunicación Escrita</td>
+                        <td class="text-center fw-bold" th:text="${estudiante.comunicacionEscrita != null ? estudiante.comunicacionEscrita : '-'}"></td>
+                        <td class="text-center"><span th:if="${estudiante.comunicacionEscritaNivel != null}"
+                              th:class="${'badge ' + (estudiante.comunicacionEscritaNivel == 'Nivel 4' ? 'bg-success' : estudiante.comunicacionEscritaNivel == 'Nivel 3' ? 'bg-primary' : estudiante.comunicacionEscritaNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${estudiante.comunicacionEscritaNivel}"></span></td></tr>
+                    <tr><td>Razonamiento Cuantitativo</td>
+                        <td class="text-center fw-bold" th:text="${estudiante.razonamientoCuantitativo != null ? estudiante.razonamientoCuantitativo : '-'}"></td>
+                        <td class="text-center"><span th:if="${estudiante.razonamientoCuantitativoNivel != null}"
+                              th:class="${'badge ' + (estudiante.razonamientoCuantitativoNivel == 'Nivel 4' ? 'bg-success' : estudiante.razonamientoCuantitativoNivel == 'Nivel 3' ? 'bg-primary' : estudiante.razonamientoCuantitativoNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${estudiante.razonamientoCuantitativoNivel}"></span></td></tr>
+                    <tr><td>Lectura Crítica</td>
+                        <td class="text-center fw-bold" th:text="${estudiante.lecturaCritica != null ? estudiante.lecturaCritica : '-'}"></td>
+                        <td class="text-center"><span th:if="${estudiante.lecturaCriticaNivel != null}"
+                              th:class="${'badge ' + (estudiante.lecturaCriticaNivel == 'Nivel 4' ? 'bg-success' : estudiante.lecturaCriticaNivel == 'Nivel 3' ? 'bg-primary' : estudiante.lecturaCriticaNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${estudiante.lecturaCriticaNivel}"></span></td></tr>
+                    <tr><td>Competencias Ciudadanas</td>
+                        <td class="text-center fw-bold" th:text="${estudiante.competenciasCiudadanas != null ? estudiante.competenciasCiudadanas : '-'}"></td>
+                        <td class="text-center"><span th:if="${estudiante.competenciasCiudadanasNivel != null}"
+                              th:class="${'badge ' + (estudiante.competenciasCiudadanasNivel == 'Nivel 4' ? 'bg-success' : estudiante.competenciasCiudadanasNivel == 'Nivel 3' ? 'bg-primary' : estudiante.competenciasCiudadanasNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${estudiante.competenciasCiudadanasNivel}"></span></td></tr>
+                    <tr><td>Inglés</td>
+                        <td class="text-center fw-bold" th:text="${estudiante.ingles != null ? estudiante.ingles : '-'}"></td>
+                        <td class="text-center">
+                            <span th:if="${estudiante.inglesNivel != null}"
+                                  th:class="${'badge ' + (estudiante.inglesNivel == 'Nivel 4' ? 'bg-success' : estudiante.inglesNivel == 'Nivel 3' ? 'bg-primary' : estudiante.inglesNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                                  th:text="${estudiante.inglesNivel}"></span>
+                            <span class="badge bg-info text-dark ms-1" th:text="${estudiante.nivelIngles != null ? estudiante.nivelIngles : ''}"></span>
+                        </td></tr>
+                    <tr class="table-light"><td><strong>Formulación Proyectos Ingeniería</strong></td>
+                        <td class="text-center fw-bold" th:text="${estudiante.formulacionProyectos != null ? estudiante.formulacionProyectos : '-'}"></td>
+                        <td class="text-center"><span th:if="${estudiante.formulacionProyectosNivel != null}"
+                              th:class="${'badge ' + (estudiante.formulacionProyectosNivel == 'Nivel 4' ? 'bg-success' : estudiante.formulacionProyectosNivel == 'Nivel 3' ? 'bg-primary' : estudiante.formulacionProyectosNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${estudiante.formulacionProyectosNivel}"></span></td></tr>
+                    <tr class="table-light"><td><strong>Pensamiento Científico — Matemáticas y Estadística</strong></td>
+                        <td class="text-center fw-bold" th:text="${estudiante.pensamientoCientifico != null ? estudiante.pensamientoCientifico : '-'}"></td>
+                        <td class="text-center"><span th:if="${estudiante.pensamientoCientificoNivel != null}"
+                              th:class="${'badge ' + (estudiante.pensamientoCientificoNivel == 'Nivel 4' ? 'bg-success' : estudiante.pensamientoCientificoNivel == 'Nivel 3' ? 'bg-primary' : estudiante.pensamientoCientificoNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${estudiante.pensamientoCientificoNivel}"></span></td></tr>
+                    <tr class="table-light"><td><strong>Diseño de Software</strong></td>
+                        <td class="text-center fw-bold" th:text="${estudiante.disenoSoftware != null ? estudiante.disenoSoftware : '-'}"></td>
+                        <td class="text-center"><span th:if="${estudiante.disenoSoftwareNivel != null}"
+                              th:class="${'badge ' + (estudiante.disenoSoftwareNivel == 'Nivel 4' ? 'bg-success' : estudiante.disenoSoftwareNivel == 'Nivel 3' ? 'bg-primary' : estudiante.disenoSoftwareNivel == 'Nivel 2' ? 'bg-warning text-dark' : 'bg-danger')}"
+                              th:text="${estudiante.disenoSoftwareNivel}"></span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Beneficio -->
+        <div class="alert border-0 shadow-sm"
+             th:style="${'background:' + (estudiante.aptoParaGraduacion ? '#d4edda' : '#f8d7da')}">
+            <i class="bi bi-award-fill me-2"></i>
+            <strong>Beneficio Acuerdo 01-009 UTS: </strong>
+            <span th:text="${estudiante.calcularBeneficio()}"></span>
+        </div>
+    </div>
+
+    <!-- No encontrado -->
+    <div th:if="${cedula != null and estudiante == null}" class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        No se encontró estudiante con cédula o registro: <strong th:text="${cedula}"></strong>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

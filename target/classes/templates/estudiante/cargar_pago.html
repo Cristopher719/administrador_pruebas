@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Cargar Pago - Saber Pro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+        body{background:#f0f2f5;}
+        .upload-zone{border:2px dashed #6c757d;border-radius:12px;cursor:pointer;transition:all .2s;background:#f8f9fa;}
+        .upload-zone:hover{border-color:#0d6efd;background:#f0f4ff;}
+        .upload-zone.tiene-archivo{border-color:#1abc9c;background:#eafaf1;}
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar('ESTUDIANTE')}"></div>
+<div class="container py-4" style="max-width:620px">
+    <h2 class="fw-bold mb-1">Cargue de Pago Saber Pro</h2>
+    <p class="text-muted mb-4">Inscripción al examen — UTS 2026</p>
+
+    <!-- Mensaje flash -->
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible mb-4">
+        <i class="bi bi-check-circle me-2"></i><span th:text="${mensaje}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible mb-4">
+        <i class="bi bi-exclamation-triangle me-2"></i><span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Estado actual del pago -->
+    <div th:if="${estudiante != null and estudiante.pagoCargado}"
+         class="alert alert-success d-flex align-items-center mb-4">
+        <i class="bi bi-check-circle-fill fs-4 me-3"></i>
+        <div>
+            <strong>Comprobante registrado — en revisión por el coordinador.</strong><br/>
+            <small class="text-muted">Referencia: <strong th:text="${estudiante.comprobantePago}"></strong></small>
+            <br/><small class="text-muted">Puedes actualizar el comprobante si cometiste un error.</small>
+        </div>
+    </div>
+
+    <!-- Bloquear si ya está INSCRITO o FINALIZADO -->
+    <div th:if="${estudiante != null and (estudiante.estado == 'INSCRITO' or estudiante.estado == 'FINALIZADO')}"
+         class="alert alert-info d-flex align-items-center mb-4">
+        <i class="bi bi-info-circle-fill fs-4 me-3"></i>
+        <div>
+            <strong>Tu pago ya fue aprobado por el coordinador.</strong><br/>
+            <small class="text-muted">No es necesario cargar ningún documento adicional.</small>
+        </div>
+    </div>
+
+    <!-- Formulario — solo si puede cargar pago -->
+    <div th:if="${estudiante != null and estudiante.estado != 'INSCRITO' and estudiante.estado != 'FINALIZADO'}">
+        <div class="card border-0 shadow-sm rounded-3">
+            <div class="card-header bg-white border-0 pt-3">
+                <h6 class="fw-bold mb-0">
+                    <i class="bi bi-credit-card me-2 text-primary"></i>Subir Comprobante de Pago
+                </h6>
+            </div>
+            <div class="card-body p-4">
+
+                <!-- Info estudiante -->
+                <div class="bg-light rounded-3 p-3 mb-4">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Número de Registro</small>
+                            <strong th:text="${estudiante.numeroRegistro}"></strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Apellido</small>
+                            <strong th:text="${estudiante.primerApellido}"></strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Tipo de Prueba</small>
+                            <span th:class="${'badge ' + (estudiante.tipoPrueba.name() == 'SABER_PRO' ? 'bg-dark' : 'bg-secondary')}"
+                                  th:text="${estudiante.tipoPrueba.name() == 'SABER_PRO' ? 'Saber Pro' : 'Saber T&T'}"></span>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">Estado actual</small>
+                            <span class="badge bg-danger" th:text="${estudiante.estado}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <form th:action="@{/estudiante/cargar-pago}" method="post"
+                      enctype="multipart/form-data">
+
+                    <!-- Número de comprobante -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            Número / Referencia del Comprobante *
+                        </label>
+                        <input type="text" name="comprobante" class="form-control form-control-lg"
+                               placeholder="Ej: TXN-2026-00001234 o 987654321"
+                               th:value="${estudiante.comprobantePago != null ? estudiante.comprobantePago : ''}"
+                               required/>
+                        <div class="form-text">
+                            Número de transacción, referencia PSE o código del recibo de pago.
+                        </div>
+                    </div>
+
+                    <!-- Subir documento -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">
+                            Documento de Soporte <span class="text-muted fw-normal">(PDF, imagen)</span>
+                        </label>
+                        <div class="upload-zone p-4 text-center" id="uploadZone"
+                             onclick="document.getElementById('docInput').click()">
+                            <i class="bi bi-file-earmark-arrow-up text-primary" style="font-size:2.5rem"></i>
+                            <p class="fw-semibold mt-2 mb-1">Haz clic aquí para seleccionar el archivo</p>
+                            <small class="text-muted">PDF, JPG, PNG — máx. 5 MB</small>
+                            <p id="nombreDoc" class="text-success fw-semibold mt-2 mb-0"></p>
+                        </div>
+                        <input type="file" name="documento" id="docInput"
+                               accept=".pdf,.jpg,.jpeg,.png" class="d-none"
+                               onchange="mostrarNombre(this)"/>
+                        <div class="form-text mt-1">
+                            El archivo es opcional si ya tienes el número de referencia,
+                            pero es recomendable adjuntarlo.
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-cloud-upload me-2"></i>Enviar Comprobante al Coordinador
+                        </button>
+                        <a th:href="@{/estudiante/dashboard}" class="btn btn-outline-secondary">
+                            Volver al inicio
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instrucciones -->
+    <div class="card border-0 shadow-sm rounded-3 mt-4">
+        <div class="card-body">
+            <h6 class="fw-bold mb-3">
+                <i class="bi bi-info-circle me-2 text-info"></i>¿Cómo realizar el pago?
+            </h6>
+            <ol class="mb-0 ps-3">
+                <li class="mb-2">Realiza el pago en el banco autorizado, cajero o por PSE.</li>
+                <li class="mb-2">Guarda el recibo o captura de pantalla de la transacción.</li>
+                <li class="mb-2">Ingresa el número de referencia y adjunta el documento.</li>
+                <li class="mb-2">Haz clic en <strong>"Enviar Comprobante"</strong>.</li>
+                <li>El coordinador revisará y aprobará tu inscripción.</li>
+            </ol>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function mostrarNombre(input) {
+        var zona = document.getElementById('uploadZone');
+        var label = document.getElementById('nombreDoc');
+        if (input.files.length > 0) {
+            label.textContent = '✓ ' + input.files[0].name;
+            zona.classList.add('tiene-archivo');
+        } else {
+            label.textContent = '';
+            zona.classList.remove('tiene-archivo');
+        }
+    }
+    // Drag and drop
+    var zona = document.getElementById('uploadZone');
+    zona.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        zona.style.borderColor = '#0d6efd';
+    });
+    zona.addEventListener('dragleave', function() {
+        zona.style.borderColor = '#6c757d';
+    });
+    zona.addEventListener('drop', function(e) {
+        e.preventDefault();
+        var files = e.dataTransfer.files;
+        if (files.length > 0) {
+            document.getElementById('docInput').files = files;
+            document.getElementById('nombreDoc').textContent = '✓ ' + files[0].name;
+            zona.classList.add('tiene-archivo');
+        }
+    });
+</script>
+</body>
+</html>
